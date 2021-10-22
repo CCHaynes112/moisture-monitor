@@ -1,0 +1,33 @@
+django
+
+# Linting
+black
+flake8
+
+# Typing
+mypy
+django-stubs
+djangorestframework-stubs
+django-stubs-ext
+
+# Database
+psycopg2
+
+# Testing
+coverage
+
+# Django Rest Framework
+djangorestframework
+djangorestframework-simplejwt
+markdown
+django-filter
+
+# Networking
+django-cors-headers
+
+# Misc
+django-extensions
+lxml
+
+# Pi
+RPi.GPIO
