@@ -28,6 +28,3 @@ django-cors-headers
 # Misc
 django-extensions
 lxml
-
-# Pi
-RPi.GPIO

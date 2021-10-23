@@ -99,8 +99,6 @@ requests==2.26.0
     # via
     #   coreapi
     #   djangorestframework-stubs
-rpi.gpio==0.7.0
-    # via -r requirements.in
 sqlparse==0.4.2
     # via django
 toml==0.10.2
