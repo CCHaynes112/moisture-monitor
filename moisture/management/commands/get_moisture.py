@@ -11,7 +11,7 @@ class Command(BaseCommand):
         channel = 17
         GPIO.setup(channel, GPIO.IN)
 
-        if GPIO.inputI(channel):
+        if GPIO.input(channel):
             saturated = False
         else:
             saturated = True

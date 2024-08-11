@@ -1,31 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Moisture Levels</title>
 
-    <style>
-        body {
-            margin: 0;
-        }
-        .container {
-            
-        }
-        .moisture-level {
-            padding: 10px;
-            color: white;
-        }
-    </style>
-  </head>
-  <body>
-    <div class="container">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moisture Levels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #ffe8d6;
+      background-image: url('https://www.transparenttextures.com/patterns/forest-pattern.png');
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(34, 49, 34, 0.9);
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #d4edda;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #3c513d;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card p {
+      margin: 0;
+      margin-top: 10px;
+    }
+
+    .icon {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .saturated .icon {
+      color: #6eeb34;
+    }
+
+    .dry .icon {
+      color: #eb8434;
+    }
+
+    .saturated {
+      background: #8aaa79;
+      ;
+    }
+
+    .dry {
+      background: #cb997e;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🦆Duck Plants 🌼</h1>
+    <div id="moisture-grid" class="grid">
       {% for moisture_level in moisture_levels %}
-        <div class="moisture-level" {% if moisture_level.saturated %} style="background-color: #6eeb34;" {% else %} style="background-color: #eb3434;" {% endif %}>
-            <p>{{ moisture_level.created_at }}</p>
+      <div class="card {% if moisture_level.saturated %}saturated{% else %}dry{% endif %}">
+        <div class="icon">
+          {% if moisture_level.saturated %}
+          🌱
+          {% else %}
+          🥀
+          {% endif %}
         </div>
+        <p>{{ moisture_level.created_at|date:"M d, Y H:i" }}</p>
+        <p>Status: {% if moisture_level.saturated %}Saturated{% else %}Dry{% endif %}</p>
+      </div>
       {% endfor %}
     </div>
-  </body>
+  </div>
+
+  <script>
+    function updateMoistureLevels() {
+      fetch('/moisture/', {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          const grid = document.getElementById('moisture-grid');
+          grid.innerHTML = '';
+          data.forEach(level => {
+            const date = new Date(level.created_at);
+            const timeString = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+
+            const card = document.createElement('div');
+            card.className = `card ${level.saturated ? 'saturated' : 'dry'}`;
+            card.innerHTML = `
+            <div class="icon">${level.saturated ? '🌱' : '🥀'}</div>
+            <p>${timeString}</p>
+            <p>Status: ${level.saturated ? 'Saturated' : 'Dry'}</p>
+          `;
+            grid.appendChild(card);
+          });
+        })
+        .catch(error => console.error('Error fetching moisture levels:', error));
+    }
+
+    setInterval(updateMoistureLevels, 5000); // Poll every 5 seconds
+  </script>
+</body>
+
 </html>
