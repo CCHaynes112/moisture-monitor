@@ -90,6 +90,7 @@
 <body>
   <div class="container">
     <h1>🦆Duck Plants 🌼</h1>
+    <button id="submit-button">Get moisture thins</button>
     <div id="moisture-grid" class="grid">
       {% for moisture_level in moisture_levels %}
       <div class="card {% if moisture_level.saturated %}saturated{% else %}dry{% endif %}">
@@ -100,7 +101,7 @@
           🥀
           {% endif %}
         </div>
-        <p>{{ moisture_level.created_at|date:"M d, Y H:i" }}</p>
+        <p>{{ moisture_level.created_at|date:"M d, Y h:i A" }}</p>
         <p>Status: {% if moisture_level.saturated %}Saturated{% else %}Dry{% endif %}</p>
       </div>
       {% endfor %}
@@ -116,26 +117,72 @@
       })
         .then(response => response.json())
         .then(data => {
+          console.log("Data:")
+          console.log(data)
           const grid = document.getElementById('moisture-grid');
           grid.innerHTML = '';
           data.forEach(level => {
             const date = new Date(level.created_at);
-            const timeString = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+
+            // Formatting both date and time
+            const dateTimeString = date.toLocaleString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric', 
+              hour: 'numeric', 
+              minute: 'numeric', 
+              hour12: true 
+            });
 
             const card = document.createElement('div');
             card.className = `card ${level.saturated ? 'saturated' : 'dry'}`;
             card.innerHTML = `
-            <div class="icon">${level.saturated ? '🌱' : '🥀'}</div>
-            <p>${timeString}</p>
-            <p>Status: ${level.saturated ? 'Saturated' : 'Dry'}</p>
-          `;
+              <div class="icon">${level.saturated ? '🌱' : '🥀'}</div>
+              <p>${dateTimeString}</p>
+              <p>Status: ${level.saturated ? 'Saturated' : 'Dry'}</p>
+            `;
             grid.appendChild(card);
           });
         })
         .catch(error => console.error('Error fetching moisture levels:', error));
     }
 
-    setInterval(updateMoistureLevels, 1800000); // Poll every 30 min
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.getElementById('submit-button').addEventListener('click', function() {
+        const csrftoken = getCookie('csrftoken');  // Get CSRF token from cookies
+
+        fetch('/moisture/', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            updateMoistureLevels();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+    setInterval(updateMoistureLevels, 18000); // Poll every 30 min
   </script>
 </body>
 
